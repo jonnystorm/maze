@@ -39,7 +39,7 @@ defmodule Maze do
 
     {next_node, new_user_acc} = fun.(state, user_acc)
     if state.loop do
-      :timer.sleep 1000
+      :timer.sleep 100
     end
     new_acc = %{acc|path: acc.path ++ [this_node]}
 

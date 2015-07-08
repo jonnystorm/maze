@@ -19,4 +19,17 @@ defmodule MazeTest do
     end)
     |> %{path: [35, 3, 67, 65, 1]}
   end
+
+  fact "random walk eventually succeeds" do
+    Maze.generate
+    |> Maze.walk(35, 0, fn(state, %{}) ->
+      random_index = (length(state.adjacent_to) |> :random.uniform) - 1
+
+      next_node = state.adjacent_to
+      |> Enum.drop(random_index)
+      |> List.first
+
+      {next_node, %{}}
+    end)
+  end
 end
