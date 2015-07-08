@@ -20,17 +20,30 @@ defmodule Maze do
     }
   end
 
-  def _walk(_, this_node, last_node, _, acc) when this_node == last_node do
-    acc
-  end
-  def _walk(graph, this_node, last_node, fun, acc) do
-    {next_node, new_acc} = fun.(%{
+  defp calculate_state(graph, this_node, target_node, acc) do
+    %{
       this_node: this_node,
       adjacent_to: graph[this_node],
-      target_node: last_node
-    }, acc)
+      target_node: target_node,
+      path: acc.path,
+      loop: this_node in acc.path
+    }
+  end
 
-    _walk(graph, next_node, last_node, fun, new_acc)
+  defp _walk(_, this_node, target_node, _, acc, _)
+      when this_node == target_node do
+    acc
+  end
+  defp _walk(graph, this_node, target_node, fun, acc, user_acc) do
+    state = calculate_state(graph, this_node, target_node, acc)
+
+    {next_node, new_user_acc} = fun.(state, user_acc)
+    if state.loop do
+      :timer.sleep 1000
+    end
+    new_acc = %{acc|path: acc.path ++ [this_node]}
+
+    _walk(graph, next_node, target_node, fun, new_acc, new_user_acc)
   end
 
   def walk(graph, first_node, target_node, fun) do
@@ -38,6 +51,10 @@ defmodule Maze do
       raise ArgumentError, message: "nodes must lie on the given graph"
     end
 
-    _walk(graph, first_node, target_node, fun, %{})
+    acc = %{
+      path: []
+    }
+
+    _walk(graph, first_node, target_node, fun, acc, %{})
   end
 end
